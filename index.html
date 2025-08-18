@@ -4,11 +4,15 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- Write your comments here -->
+    <!-- This is a custom contact form that can be linked to a Google Form to collect responses. -->
     <title>Get in Touch</title>
 
     <style>
-      /* Customize Page Styling */
+      /* 
+        Customize Page Styling 
+        CSS Variables for easy theme customization.
+        You can change the values here to match your brand colors.
+      */
       :root {
         --bg: #f7f8fb;
         --card: #ffffff;
@@ -163,8 +167,16 @@
     />
   </head>
   <body>
-    <!-- Left Container. Replace the h1 and p with your own text. -->
+    <!-- 
+      The main wrapper for the content. 
+      It uses a CSS Grid to create a two-column layout on larger screens.
+    -->
     <div class="wrap">
+      <!-- 
+        The left section of the page. 
+        This area typically contains introductory text and contact information.
+        Replace the h1 and p with your own text. 
+      -->
       <div class="left">
         <h1>Become an OnlyFans Model</h1>
         <p>
@@ -207,12 +219,15 @@
       </div>
 
       <div class="card">
+        <!-- 
+          The form submits to a hidden iframe to prevent the page from redirecting after submission.
+        -->
         <iframe name="hidden_iframe" style="display: none"></iframe>
 
         <!-- Google Form Details. Replace the action with your Google Scripts Web App URL. Replace each entry. with your Google Form ID. -->
         <form
           id="lead-form"
-          action=""
+          action="https://script.google.com/macros/s/AKfycbwD29xSguM693ZmhrmWxtGkbH87I9zn6gQTcOYRL7VGpnTTA0o0WF9dHIdYy2DDnYG5lw/exec"
           method="POST"
           target="hidden_iframe"
           novalidate
@@ -362,42 +377,56 @@
       </div>
     </div>
 
-    <!-- Google Form Script. Replace the form id with your form id. -->
+    <!-- 
+      This script handles form submission and provides user feedback.
+      It also includes a character counter for the message textarea.
+    -->
     <script>
       document.addEventListener("DOMContentLoaded", () => {
+        // Get the form and other necessary elements from the DOM
         const form = document.getElementById("lead-form");
         if (!form) return;
 
         const full = document.getElementById("full-name");
         const lastHidden = document.getElementById("g-last");
-        const resp = document.getElementById("resp");
+        const resp = document.getElementById("resp"); // Response message element
         const msg = document.getElementById("message");
         const counter = document.getElementById("counter");
 
+        // Function to update the character count for the textarea
         function updateCount() {
           if (counter && msg) counter.textContent = msg.value.length + "/500";
         }
+        // Add event listener to the message field to update count on input
         if (msg) msg.addEventListener("input", updateCount);
+        // Initial call to set the count on page load
         updateCount();
 
+        // This function splits the full name into first and last name.
+        // This is a workaround for how Google Forms can handle separate name fields.
         function splitName(value) {
-          const parts = (value || "").trim().replace(/\\s+/g, " ").split(" ");
+          const parts = (value || "").trim().replace(/\s+/g, " ").split(" ");
           if (!parts[0]) return { first: "", last: "." };
           if (parts.length === 1) return { first: parts[0], last: "." };
           return { first: parts.slice(0, -1).join(" "), last: parts.at(-1) };
         }
 
+        // Add event listener for form submission
         form.addEventListener("submit", () => {
+          // Split the name and populate the hidden field before submission
           const { first, last } = splitName(full.value);
           if (first) full.value = first;
           if (lastHidden) lastHidden.value = last;
 
+          // Display a success message to the user
           if (resp) {
             resp.textContent = "Thanks! Your message was sent.";
+            // Clear the message after a few seconds
             setTimeout(() => {
               resp.textContent = "";
             }, 6000);
           }
+          // Reset the form and character counter shortly after submission
           setTimeout(() => {
             form.reset();
             updateCount();
